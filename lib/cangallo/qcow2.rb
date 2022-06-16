@@ -82,7 +82,7 @@ class Cangallo
       command = [:convert, "-p", "-O qcow2"]
       #command = ["convert", "-p", "-O qcow2"]
       command << '-c' if ops[:compress]
-      command << "-o backing_file=#{parent}" if parent
+      command << "-o backing_file=#{parent} -F qcow2" if parent
       command += [@path, new_path]
 
       if ops[:only_copy]
@@ -110,7 +110,7 @@ class Cangallo
       parent = info['backing_file']
       parent_options = ''
 
-      parent_options = "-o backing_file=#{parent}" if parent
+      parent_options = "-o backing_file=#{parent} -F qcow2" if parent
 
       command = "TMPDIR=#{File.dirname(destination)} virt-sparsify #{parent_options} #{@path} #{destination}"
       status, stdout, stderr = systemu command
@@ -131,7 +131,7 @@ class Cangallo
     end
 
     def rebase(new_base)
-      execute :rebase, '-u', "-b #{new_base}", @path
+      execute :rebase, '-u', "-b #{new_base} -F qcow2", @path
     end
 
     def execute(command, *params)
@@ -152,7 +152,7 @@ class Cangallo
     end
 
     def self.create_from_base(origin, destination, size=nil)
-      cmd = [:create, '-f qcow2', "-o backing_file=#{origin}", destination]
+      cmd = [:create, '-f qcow2', "-o backing_file=#{origin} -F qcow2", destination]
       cmd << size if size
 
       execute(*cmd)
@@ -160,7 +160,7 @@ class Cangallo
 
     def self.create(image, parent=nil, size=nil)
       cmd = [:create, '-f qcow2']
-      cmd << "-o backing_file=#{parent}" if parent
+      cmd << "-o backing_file=#{parent} -F qcow2" if parent
       cmd << image
       cmd << size if size
 
@@ -169,3 +169,4 @@ class Cangallo
   end
 
 end
+
